@@ -1,0 +1,11 @@
+-
+  name: Test Loops
+  hosts: localhost
+  tasks: 
+    - name: Say Hello
+      debug:
+        msg: "Hello {{ item }}"
+      loop:
+        - "Noir"
+        - "Bree"
+        - "Sparky"

@@ -1,0 +1,16 @@
+-
+  name: Apt Module Example
+  hosts: all
+  become: yes # Run with elevated priveledges
+  tasks:
+  - name: Install apache httpd   
+    apt:
+      name: apache2
+      state: present
+      update_cache: yes
+
+  - name: Install Git   
+    apt:
+      name: git
+      state: present
+

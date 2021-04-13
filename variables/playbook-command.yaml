@@ -1,0 +1,30 @@
+-
+  name: Command Module Examples
+  hosts: localhost
+  tasks: 
+  - name: Run date command
+    command: date
+    # This creates (registers) a variable called date_result
+    register: date_result 
+
+  - name: Show date output
+    debug:
+      # Output the date_result variable
+      var: date_result.stdout_lines 
+
+  - name: Run ls command
+    command: ls -a /
+    # Create a variable called ls_result
+    register: ls_result 
+
+  - name: Show ls output
+    debug:
+     # Output the variable
+      var: ls_result 
+
+  - name: Show ls output with Jinja template
+    debug:
+      # Use a Jinja template to output a message
+      msg: "The ls command started at {{ ls_result.start }} and 
+            ended at {{ ls_result.end }}."
+

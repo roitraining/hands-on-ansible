@@ -1,0 +1,23 @@
+-
+  name: Apt Module Example
+  hosts: all
+  become: yes # Run with elevated priveledges
+  vars:
+    # Create a dictionary called packages
+    packages:
+    - name: apache2
+      required: True
+    - name: git
+      required: True
+    - name: mariadb-server
+      required: False
+  tasks:
+  - name: "Install {{ item.name }}"   
+    apt:
+      name: "{{ item.name }}"
+      state: present
+      update_cache: yes
+    # Conditional: Only install if True
+    when: item.required == True
+    # Loop through each package
+    loop: "{{ packages }}"

@@ -1,0 +1,8 @@
+[hosts]
+target1 ansible_host=34.70.131.53  
+target2 ansible_host=34.68.67.142
+
+[hosts:vars]
+ansible_python_interpreter=/usr/bin/python3
+ansible_user=ansible
+ansible_ssh_pass=letmein!

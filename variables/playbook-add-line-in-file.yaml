@@ -1,0 +1,25 @@
+-
+  name: Add a line to a file
+  hosts: localhost
+  vars:
+    developer: Doug
+  tasks: 
+
+  - name: Creating an empty file
+    file:
+      path: ./runs.txt
+      state: touch
+        
+  - name: Get the date
+    command: date
+    register: now
+
+  - name: Add First Line
+    lineinfile:
+      path: ./runs.txt
+      line: "Hello {{ developer }}!"
+
+  - name: Add Run date 
+    lineinfile:
+      path: ./runs.txt
+      line: '{{ now.stdout_lines[0] }}'

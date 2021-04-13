@@ -1,0 +1,11 @@
+-
+  name: Script Moduile Example
+  hosts: localhost
+  tasks: 
+  - name: Run a script
+    script: ./my-script.sh
+    register: script_output
+
+  - name: Show date output
+    debug:
+      var: script_output.stdout
