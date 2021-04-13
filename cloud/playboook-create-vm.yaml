@@ -1,0 +1,51 @@
+---
+    # compute-video-demo-ansible
+    - name: Create Compute Engine instances 
+      hosts: localhost
+      gather_facts: no
+      vars:
+        gcp_project: ansible-310511  # Need your Project ID
+        gcp_cred_kind: serviceaccount
+        # Need a service account with permissions and
+        # a service account Keyfile. 
+        gcp_cred_file: ~/ansible-controller.json  
+        zone: "us-east4-a"
+        region: "us-east4"
+        machine_type: "f1-micro"
+        image: "projects/debian-cloud/global/images/debian-10-buster-v20210217"
+        app_name: space-invaders
+    
+      tasks:
+        - name: Create an IP address for instance
+          gcp_compute_address:
+            name: "{{app_name}}-ip"
+            region: "{{ region }}"
+            project: "{{ gcp_project }}"
+            service_account_file: "{{ gcp_cred_file }}"
+            auth_kind: "{{ gcp_cred_kind }}"
+          register: gce_ip
+
+        - name: Bring up the instance in the zone.
+          gcp_compute_instance:
+            name: "{{app_name}}-server"
+            machine_type: "{{ machine_type }}"
+            disks:
+              - auto_delete: true
+                boot: true
+                initialize_params:
+                  source_image: "{{ image }}"
+            network_interfaces:
+              - access_configs:
+                  - name: External NAT
+                    nat_ip: "{{ gce_ip }}"
+                    type: ONE_TO_ONE_NAT
+            tags:
+              items:
+                - http-server
+            zone: "{{ zone }}"
+            project: "{{ gcp_project }}"
+            service_account_file: "{{ gcp_cred_file }}"
+            auth_kind: "{{ gcp_cred_kind }}"
+            metadata:
+              startup-script-url: gs://doug-rehnstrom-public/si-startup-script.sh            
+          register: gce
