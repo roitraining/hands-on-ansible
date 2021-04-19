@@ -1,11 +1,12 @@
 -
   name: Script Moduile Example
-  hosts: localhost
+  hosts: all
+  become: yes
   tasks: 
   - name: Run a script
-    script: ./my-script.sh
+    script: ./install-space-invaders.sh
     register: script_output
 
-  - name: Show date output
+  - name: Show output
     debug:
       var: script_output.stdout
