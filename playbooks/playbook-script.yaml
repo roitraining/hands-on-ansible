@@ -1,5 +1,5 @@
 -
-  name: Script Moduile Example
+  name: Script Module Example
   hosts: all
   become: yes
   tasks: 
