@@ -4,7 +4,7 @@
       hosts: localhost
       gather_facts: no
       vars:
-        gcp_project: ansible-310511  # Need your Project ID
+        gcp_project: ansible-testing-311213  # Need your Project ID
         gcp_cred_kind: serviceaccount
         # Need a service account with permissions and
         # a service account Keyfile. 
@@ -49,3 +49,19 @@
             metadata:
               startup-script-url: gs://doug-rehnstrom-public/si-startup-script.sh            
           register: gce
+
+        - name: create a firewall
+          gcp_compute_firewall:
+            project: "{{ gcp_project }}"
+            auth_kind: serviceaccount
+            service_account_file: "{{ gcp_cred_file }}"
+            name: allow-port-80
+            allowed:
+            - ip_protocol: tcp
+              ports:
+               - '80'
+            target_tags:
+            - http-server
+            source_ranges:
+            - 0.0.0.0/0
+            state: present
