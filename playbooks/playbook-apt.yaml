@@ -1,7 +1,7 @@
 -
   name: Apt Module Example
   hosts: all
-  become: yes # Run with elevated priveledges
+  become: yes # Run with elevated privileges
   tasks:
   - name: Install apache httpd   
     apt:
