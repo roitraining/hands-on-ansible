@@ -1,0 +1,134 @@
+- name: Create EC2 Web Server
+  hosts: localhost
+  vars:
+      aws_access_key: YOUR-ACCESS-KEY-HERE
+      aws_secret_key: YOUR-SECRET-KEY-HERE
+      region: us-east-1
+      vpc_cidr: 10.1.0.0/16
+      subnet_cidr: 10.1.1.0/24
+      vpc_name: ansible-vpc
+      subnet_name: ansible-subnet
+      igw_name: ansible-gateway
+      route_name: ansible-route
+      sg_name: ansible-sec-group
+      server_name: ansible-server
+      ami:  ami-0742b4e673072066f # Use an AMI that is in your region
+      instance_type: t2.nano
+
+      key_name: YOUR-KEY-PAIR-NAME
+    
+  tasks:
+    - name: create VPC
+      ec2_vpc_net:
+        name: "{{ vpc_name }}"
+        cidr_block: "{{ vpc_cidr }}"
+        region: "{{ region }}"
+        state: present
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+      register: result_vpc
+    
+
+    - name: view vpc properties
+      debug:
+        var: result_vpc
+
+
+    - name: create subnet
+      ec2_vpc_subnet:
+        state: present
+        vpc_id: "{{ result_vpc.vpc.id }}"
+        region: "{{ region }}"
+        cidr: "{{ subnet_cidr }}"
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        map_public: yes
+        tags:
+          Name: "{{ subnet_name }}"
+      register: result_subnet
+
+
+    - name: view subnet properties
+      debug:
+        var: result_subnet
+ 
+
+    - name: create IGW
+      ec2_vpc_igw:
+        vpc_id: "{{ result_vpc.vpc.id }}"
+        region: "{{ region }}"
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        state: "present"
+        tags:
+          Name: "{{ igw_name }}"
+      register: result_igw
+
+    - name: Route to IGW
+      ec2_vpc_route_table:
+        vpc_id: "{{ result_vpc.vpc.id }}"
+        region: "{{ region }}"
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        subnets:
+          - "{{ result_subnet.subnet.id }}"
+        routes:
+          - dest: 0.0.0.0/0
+            gateway_id: "{{ result_igw.gateway_id  }}"
+        tags:
+          Name: "{{ route_name }}"
+      register: result_route
+
+    - name: Create security group
+      ec2_group:
+        name: webserver_security_group
+        description: security group for web
+        aws_access_key: "{{aws_access_key}}"
+        aws_secret_key: "{{aws_secret_key}}"  
+        region: "{{region}}"
+        vpc_id: "{{ result_vpc.vpc.id }}"        
+        state: present
+        rules:
+          - proto: tcp
+            from_port: 80
+            to_port: 80
+            cidr_ip: 0.0.0.0/0
+          - proto: tcp
+            from_port: 22
+            to_port: 22
+            cidr_ip: 0.0.0.0/0
+          - proto: icmp
+            from_port: -1 
+            to_port: -1 
+            cidr_ip: 0.0.0.0/0
+
+        tags:
+          Name: "{{ sg_name }}"
+      register: result_ec2_web_sg  # Variable used when creating VM
+
+
+    - name: view sg properties
+      debug:
+        var: result_ec2_web_sg
+
+
+    - name: create ec2 instance
+      ec2:
+        key_name: "{{key_name}}"
+        instance_type: "{{instance_type}}"
+        image: "{{ami}}"
+        wait: yes
+        region: "{{region}}"
+        group_id :
+          - "{{result_ec2_web_sg.group_id}}" # Variable from Create Sec. Group task    
+        aws_access_key: "{{aws_access_key}}"
+        aws_secret_key: "{{aws_secret_key}}"  
+        vpc_subnet_id: "{{result_subnet.subnet.id}}" # Variable from create subnet task
+        instance_tags:
+          Name: "{{ server_name }}"
+        user_data: "{{ lookup('file', 'ec2-startup.sh') }}"
+      register: result_ec2_vm
+
+    - name: view VM properties
+      debug:
+        var: result_ec2_vm
