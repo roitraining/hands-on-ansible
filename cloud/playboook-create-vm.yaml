@@ -25,6 +25,7 @@
             auth_kind: "{{ gcp_cred_kind }}"
           register: gce_ip
 
+
         - name: Bring up the instance in the zone.
           gcp_compute_instance:
             name: "{{app_name}}-server"
@@ -49,6 +50,7 @@
             metadata:
               startup-script-url: gs://doug-rehnstrom-public/si-startup-script.sh            
           register: gce
+
 
         - name: create a firewall
           gcp_compute_firewall:
