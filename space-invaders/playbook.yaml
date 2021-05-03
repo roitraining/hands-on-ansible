@@ -1,0 +1,26 @@
+---
+    # Play # 1: Create the VM 
+    - name: Create Compute Engine instances
+      hosts: localhost
+      gather_facts: no
+      tasks:
+        - name: Ping
+          ping:
+          
+      roles:
+        - vm
+
+      post_tasks:
+        - name: Wait for SSH for instance
+          wait_for: delay=5 sleep=5 host={{ gce_ip.address }} port=22 state=started timeout=100
+        - name: Save host data for first zone
+          add_host: hostname={{ gce_ip.address }} groupname=gce_instances_ips
+
+          
+    # Play # 2: Install the Program
+    - name: Install Web Server
+      hosts: gce_instances_ips
+      become: yes
+      become_method: sudo
+      roles:
+        - website
