@@ -1,4 +1,5 @@
 ---
+# tasks file for space-invaders
         - name: Create an IP address for instance
           gcp_compute_address:
             name: "{{app_name}}-ip"
@@ -7,6 +8,7 @@
             service_account_file: "{{ gcp_cred_file }}"
             auth_kind: "{{ gcp_cred_kind }}"
           register: gce_ip
+
 
         - name: Bring up the instance in the zone.
           gcp_compute_instance:
@@ -29,4 +31,23 @@
             project: "{{ gcp_project }}"
             service_account_file: "{{ gcp_cred_file }}"
             auth_kind: "{{ gcp_cred_kind }}"
+            metadata:
+              startup-script-url: gs://doug-rehnstrom-public/si-startup-script.sh            
           register: gce
+
+
+        - name: create a firewall
+          gcp_compute_firewall:
+            project: "{{ gcp_project }}"
+            auth_kind: serviceaccount
+            service_account_file: "{{ gcp_cred_file }}"
+            name: "{{app_name}}-allow-port-80"
+            allowed:
+            - ip_protocol: tcp
+              ports:
+               - '80'
+            target_tags:
+            - http-server
+            source_ranges:
+            - 0.0.0.0/0
+            state: present

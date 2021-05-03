@@ -1,0 +1,7 @@
+---
+    # Play
+    - name: Deploy Space Invaders Webiste to Google Cloud 
+      hosts: localhost
+      gather_facts: no
+      roles:
+        - space-invaders

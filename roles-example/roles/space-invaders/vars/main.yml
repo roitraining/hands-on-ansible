@@ -1,0 +1,12 @@
+---
+# vars file for space-invaders
+gcp_project: ansible-testing-311213  # Need your Project ID
+gcp_cred_kind: serviceaccount
+# Need a service account with permissions and
+# a service account Keyfile. 
+gcp_cred_file: ~/ansible-controller.json  
+zone: "us-east4-a"
+region: "us-east4"
+machine_type: "f1-micro"
+image: "projects/debian-cloud/global/images/debian-10-buster-v20210217"
+app_name: space-invaders-roles
