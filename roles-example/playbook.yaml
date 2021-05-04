@@ -1,6 +1,6 @@
 ---
     # Play
-    - name: Deploy Space Invaders Webiste to Google Cloud 
+    - name: Deploy Space Invaders Website to Google Cloud 
       hosts: localhost
       gather_facts: no
       roles:
