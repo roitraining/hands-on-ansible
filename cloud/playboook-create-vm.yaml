@@ -11,7 +11,7 @@
         zone: "us-east4-a"
         region: "us-east4"
         machine_type: "f1-micro"
-        image: "projects/debian-cloud/global/images/debian-10-buster-v20210217"
+        image: "projects/debian-cloud/global/images/debian-11-bullseye-v20221206"
         app_name: space-invaders
     
       tasks:
