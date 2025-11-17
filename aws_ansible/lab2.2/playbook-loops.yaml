@@ -1,0 +1,24 @@
+-
+  name: Test Loops
+  hosts: localhost
+  vars:
+    pets:
+    - name: "Noir"
+      breed: "Schnoodle"
+      type: "Dog"
+    - name: "Bree"
+      breed: "Mutt"
+      type: "Dog"
+    - name: "Sparky"
+      breed: "Hound"
+      type: "Dog"
+    - name: "Cleo"
+      breed: "Tabby"
+      type: "Cat"
+  tasks: 
+    - name: Say Hello
+      debug:
+        msg: "Hello {{ item.name }} the {{ item.breed}}"
+      when: item.type == "Dog"
+      with_items: "{{ pets }}"
+
