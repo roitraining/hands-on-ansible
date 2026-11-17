@@ -1,0 +1,29 @@
+-
+  name: dnf Module Example
+  hosts: all
+  become: yes # Run with elevated privileges
+  vars:
+    # Create a list called packages
+    packages:
+    - name: httpd
+      required: True
+    - name: git
+      required: True
+    - name: mariadb105-server
+      required: False
+  tasks:
+  - name: "Install {{ item.name }}"
+    dnf:
+      name: "{{ item.name }}"
+      state: present
+      update_cache: yes
+    # Conditional: Only install if True
+    when: item.required == True
+    # Loop through each package
+    loop: "{{ packages }}"
+
+  - name: Start and enable httpd
+    systemd:
+      name: httpd
+      state: started
+      enabled: yes
